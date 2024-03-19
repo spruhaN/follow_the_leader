@@ -225,40 +225,40 @@ right_motor.setPosition(float('inf'))
 left_motor.setVelocity(0.0)
 right_motor.setVelocity(0.0)
 
-while robot.step(time_step) != -1:
-    # Reset logic and sensor reading can go here
-    for i in range(NUM_SENSORS):
-        DS_value[i] = ds[i].getValue()
+# while robot.step(time_step) != -1:
+#     # Reset logic and sensor reading can go here
+#     for i in range(NUM_SENSORS):
+#         DS_value[i] = ds[i].getValue()
         
-    if min_act_flag == 0:
-        min_act_left = DS_value[6] + DS_value[7]
-        min_act_right = DS_value[0] + DS_value[1]
-        min_act_flag = 1
+#     if min_act_flag == 0:
+#         min_act_left = DS_value[6] + DS_value[7]
+#         min_act_right = DS_value[0] + DS_value[1]
+#         min_act_flag = 1
         
-    # Avoid Objects Module
-    AvoidObjects()
+#     # Avoid Objects Module
+#     AvoidObjects()
 
-    # Set wheel speeds based on OAM decisions
-    if 0.00628 * ao_speed[LEFT] > 6.28:
-        ao_speed[LEFT] = 6.28
-    if 0.00628 * ao_speed[LEFT] < -6.28:
-        ao_speed[LEFT] = -6.28
+#     # Set wheel speeds based on OAM decisions
+#     if 0.00628 * ao_speed[LEFT] > 6.28:
+#         ao_speed[LEFT] = 6.28
+#     if 0.00628 * ao_speed[LEFT] < -6.28:
+#         ao_speed[LEFT] = -6.28
         
-    if 0.00628 * ao_speed[RIGHT] > 6.28:
-        ao_speed[RIGHT] = 6.28
-    if 0.00628 * ao_speed[RIGHT] < -6.28:
-        ao_speed[RIGHT] = -6.28
-    left_motor.setVelocity(0.00628 * ao_speed[LEFT])
-    right_motor.setVelocity(0.00628 * ao_speed[RIGHT])
-    print("side", ao_side)
+#     if 0.00628 * ao_speed[RIGHT] > 6.28:
+#         ao_speed[RIGHT] = 6.28
+#     if 0.00628 * ao_speed[RIGHT] < -6.28:
+#         ao_speed[RIGHT] = -6.28
+#     left_motor.setVelocity(0.00628 * ao_speed[LEFT])
+#     right_motor.setVelocity(0.00628 * ao_speed[RIGHT])
+#     print("side", ao_side)
     
-    #!!! For debugging!!!
-    print(DS_value[DS_LEFT_00]) 
-    print(DS_value[DS_LEFT_45])
-    print(DS_value[DS_LEFT_90])
+#     #!!! For debugging!!!
+#     print(DS_value[DS_LEFT_00]) 
+#     print(DS_value[DS_LEFT_45])
+#     print(DS_value[DS_LEFT_90])
     
-    print(DS_value[DS_RIGHT_00])
-    print(DS_value[DS_RIGHT_45])
-    print(DS_value[DS_RIGHT_90])
-    print("reset", ao_reset)
+#     print(DS_value[DS_RIGHT_00])
+#     print(DS_value[DS_RIGHT_45])
+#     print(DS_value[DS_RIGHT_90])
+#     print("reset", ao_reset)
 

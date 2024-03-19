@@ -2,6 +2,7 @@
 
 from controller import Robot, Motor, Camera, CameraRecognitionObject
 
+
 # create the Robot instance.
 robot = Robot()
 
@@ -45,39 +46,58 @@ camera = Camera('camera')
 camera.enable(100)
 
 x = 0
+freq = 0
+f = open("pixels.txt", "w")
+num = 0
+
 while robot.step(timestep) != -1:
     image = camera.getImageArray()
-    
-    if x == 10:
-        #print(image)
-        camera.saveImage('testImage.png', 100)
-        x = 0
 
-        green_total = 0
-        red_total = 0
-        blue_total = 0
-        if image:
-            # display the components of each pixel
-            for x in range(0,camera.getWidth()):
-                for y in range(0,camera.getHeight()):
-                    #print(image)
-                    #print(x, " ", y)
-                    red   = image[x][y][0]
-                    green = image[x][y][1]
-                    blue  = image[x][y][2]
-                    gray  = (red + green + blue) / 3
-                    
-                    red_total += red
-                    green_total += green
-                    blue_total += blue
-    
-                    #print('r='+str(red)+' g='+str(green)+' b='+str(blue))
-            print('-------------------------')
-            print("greenTotal: ", green_total)
-            print("blueTotal: ", blue_total)
-            print("redTotal: ", red_total)
-            print('-------------------------')
-    x += 1
+    camera.saveImage('testImage.png', 100)
+    print(f"width: {camera.getWidth()}")
+    print(f"height: {camera.getHeight()}")
+
+    if image:
+        red_matrix = []
+        # check each pixel for largest red component
+        for x in range(0, camera.getWidth()):
+            red_row = []  # each row
+            for y in range(0, camera.getHeight()):
+                # get components
+                red_component = int(image[x][y][0])
+                green_component = int(image[x][y][1])
+                blue_component = int(image[x][y][2])
+
+                # red_row.append(f"rgb({red_component},{green_component},{blue_component})")
+
+                # if red is largest then leader prev if red > green and red > blue
+                # (red_component + 10) > (green_component + blue_component) and red_component > (60)
+                if red_component > 50 and green_component < 40 and blue_component < 35:
+                    red_row.append(f"o")
+                else:
+                    red_row.append(f"-")  # background
+
+            red_matrix.append(red_row)  # Add the row to the matrix
+
+        # Determine the maximum width of the numbers in the matrix for formatting
+        max_width = max(len(str(item)) for row in red_matrix for item in row)
+        num += 1
+        # if num == 10:
+        for row in red_matrix:
+            print(' '.join(f"{item:>{max_width}}" for item in row))
+            # print("\n")
+        # example of pixel out
+        # if num == 15:
+        #     f.write ("==========")
+        #     for row in red_matrix:
+        #         f.write(' '.join(f"{item:>{max_width}}" for item in row))
+    else:
+        print("NO IMAGE")
+
+
+
+
+
     # this doesnt work with E-Puck robot type 
     # objects = camera.getRecognitionObjects()
     
@@ -88,8 +108,8 @@ while robot.step(timestep) != -1:
     #     print("Size:", obj.get_size())
     #     print("Orientation:", obj.get_orientation())
 
-    left_motor.setVelocity(1.0) # set the left motor (radians/second)
-    right_motor.setVelocity(1.0) # set the right motor (radians/second) 
+    left_motor.setVelocity(0.0) # set the left motor (radians/second)
+    right_motor.setVelocity(0.0) # set the right motor (radians/second) 
 
     # print(left_ground_sensor.getValue())
     # print(middle_ground_sensor.getValue())
