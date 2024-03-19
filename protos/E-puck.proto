@@ -127,7 +127,7 @@ Robot {
                   metalness 0
                   roughness 0.4
                   %< if (v1) { >%
-                  baseColor 1 0 0 
+                  baseColor 1 0 0
                   %< } else { >%
                   baseColor 1 0 0
                   %< } >%
@@ -170,7 +170,7 @@ Robot {
                 children [
                   Shape {
                     appearance PBRAppearance {
-                      baseColor 1 0 0 
+                      baseColor 1 0 0
                       metalness 0
                       roughness 0.6
                     }

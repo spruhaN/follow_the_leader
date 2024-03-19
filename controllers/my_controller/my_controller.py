@@ -2,6 +2,7 @@
 
 from controller import Robot, Motor, Camera, CameraRecognitionObject
 
+
 # create the Robot instance.
 robot = Robot()
 
@@ -13,8 +14,8 @@ left_motor = robot.getDevice('left wheel motor')
 right_motor = robot.getDevice('right wheel motor')
 left_motor.setPosition(float('inf'))
 right_motor.setPosition(float('inf'))
-left_motor.setVelocity(0.0)
-right_motor.setVelocity(0.0)
+left_motor.setVelocity(1.0)
+right_motor.setVelocity(1.0)
 
 # enable ground color sensors
 left_ground_sensor = robot.getDevice('gs0')
@@ -37,6 +38,26 @@ for i in range(2):
     encoders[i].enable(timestep)
 
 
+def motor_inputs(target_column, total_columns=20, max_speed=1):
+    middle_column = (total_columns - 1) / 2.0
+    error = target_column - middle_column
+    
+    base_speed = max_speed / 2.0
+    
+    Kp = .05 #(max_speed / 2.0) / middle_column
+    
+    control_signal = Kp * error
+    
+    left_motor_speed = base_speed - control_signal
+    right_motor_speed = base_speed + control_signal
+    
+    left_motor_speed = max(0, min(max_speed, left_motor_speed))
+    right_motor_speed = max(0, min(max_speed, right_motor_speed))
+    
+    return left_motor_speed, right_motor_speed
+
+
+
 # Main loop:
 # - perform simulation steps until Webots stops the controller
 
@@ -45,62 +66,68 @@ camera = Camera('camera')
 camera.enable(100)
 
 x = 0
+freq = 0
+f = open("pixels.txt", "w")
+num_red = 0
+
 while robot.step(timestep) != -1:
+
     image = camera.getImageArray()
-    
-    if x == 10:
-        #print(image)
-        camera.saveImage('testImage.png', 100)
-        x = 0
 
-        green_total = 0
-        red_total = 0
-        blue_total = 0
-        if image:
-            # display the components of each pixel
-            for x in range(0,camera.getWidth()):
-                for y in range(0,camera.getHeight()):
-                    #print(image)
-                    #print(x, " ", y)
-                    red   = image[x][y][0]
-                    green = image[x][y][1]
-                    blue  = image[x][y][2]
-                    gray  = (red + green + blue) / 3
-                    
-                    red_total += red
-                    green_total += green
-                    blue_total += blue
-    
-                    #print('r='+str(red)+' g='+str(green)+' b='+str(blue))
-            print('-------------------------')
-            print("greenTotal: ", green_total)
-            print("blueTotal: ", blue_total)
-            print("redTotal: ", red_total)
-            print('-------------------------')
-    x += 1
-    # this doesnt work with E-Puck robot type 
-    # objects = camera.getRecognitionObjects()
-    
-    # for obj in objects:
-    #     # Print object ID, position, size, and orientation
-    #     print("Object ID:", obj.get_id())
-    #     print("Position:", obj.get_position())
-    #     print("Size:", obj.get_size())
-    #     print("Orientation:", obj.get_orientation())
+    camera.saveImage('testImage.png', 100)
+    print(f"width: {camera.getWidth()}")
+    print(f"height: {camera.getHeight()}")
 
-    left_motor.setVelocity(1.0) # set the left motor (radians/second)
-    right_motor.setVelocity(1.0) # set the right motor (radians/second) 
+    if image:
+        print("===============================")
+        red_matrix = []
+        # check each pixel for largest red component
+        height = camera.getHeight()
+        width = camera.getWidth()
 
-    # print(left_ground_sensor.getValue())
-    # print(middle_ground_sensor.getValue())
-    # print(right_ground_sensor.getValue())
-    # print(right_distance_sensor.getValue())
-    
-    new_encoder_values = [encoder.getValue() for encoder in encoders]
-    # print(new_encoder_values)
-    #print('-------------------------')
+        column_sums = [0] * height
+
+        # Ensuring we access valid indices
+        for w in range(width):  # Iterate over rows
+            sum = 0
+            for h in range(height):  # Iterate over columns
+                # Accessing the pixel at (h, w) safely
+                pixel = image[w][h]
+                red_component = int(pixel[0])
+                green_component = int(pixel[1])
+                blue_component = int(pixel[2])
+
+                # print(f"{red_component},{green_component},{blue_component} ", end = "")
+                # Determine if the pixel is predominantly red
+                if red_component > 50 and green_component < 40 and blue_component < 35:
+                    print(f"{red_component} ", end="")
+                    column_sums[h] += red_component
+                    num_red += 1
+                else:
+                    print("-  ", end="")
+            print(f"({sum})")
         
-    # call robot.getTime() to get the current simulation time in seconds
+        target = column_sums.index(max(column_sums))
+        if num_red < 3 or max(column_sums) == 0:
+            target = -1
 
+        FACTOR = 1.5
+        # left,right = motor_inputs(target) PID CONTROLLER
+        if target == -1:
+            left = 0 * FACTOR
+            right = 1 * FACTOR
+        elif target < 15 and target > 6:
+            left = 1 * FACTOR
+            right = 1 * FACTOR
+        elif target >= 15:
+            left = 1.3 * FACTOR
+            right = 1 * FACTOR
+        else:
+            left = 1 * FACTOR
+            right = 1.3 * FACTOR
 
-
+        left_motor.setVelocity(left)
+        right_motor.setVelocity(right)
+        print(f"target: {target} and {left} {right}")
+    else:
+        print("NO IMAGE")
