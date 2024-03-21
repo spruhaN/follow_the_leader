@@ -1,14 +1,6 @@
-1) get two robots on the map
-2) bigger map
-2) test that these run properly
-3a) color leader red 
-3b) test camera and front sensor of follower
+# How to set-up
+Once cloning the files everything should be ready upon running.
 
-4) leader script where it runs around the map without running into walls
-5) follower script:
-	gets camera
-	runs camera against scipt that looks for red and gets offset
-	run against pid controller
-	(consider distance later)
-
- 
+# Quick Fixes
+If the follower is not following the leader confirm that the leader robot is red, if not update the proto file of the e-puck to be the same that of protos/E-puck.proto and save accordingly. 
+To get further visuals you can activate the camera via the Overlays Option.
