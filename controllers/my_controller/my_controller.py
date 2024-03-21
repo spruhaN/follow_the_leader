@@ -1,3 +1,6 @@
+# Author: Spruha Nayak, Sarah Hallam, and Jenna Mast
+# Description: Follower Robot that uses image analysis to track location of ledaer robot and then follows
+
 """CPE416 Sample Controller"""
 
 from controller import Robot, Motor, Camera, CameraRecognitionObject
@@ -108,10 +111,10 @@ while robot.step(timestep) != -1:
             print(f"({sum})")
         
         target = column_sums.index(max(column_sums))
-        if num_red < 3 or max(column_sums) == 0:
+        if max(column_sums) == 0:
             target = -1
 
-        FACTOR = 1.5
+        FACTOR = 1.6
         # left,right = motor_inputs(target) PID CONTROLLER
         if target == -1:
             left = 0 * FACTOR
